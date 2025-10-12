@@ -1,10 +1,6 @@
-Harika bir `README.md` dosyası oluşturdunuz. Bu dosya, projenin tüm temel bileşenlerini başarıyla özetliyor. [cite\_start]Proje teslimi için bu dosyayı, Akbank GenAI Bootcamp'in belirttiği kriterlere [cite: 3] tam uyacak şekilde daha da iyileştirip son haline getirelim.
 
-[cite\_start]Aşağıda, mevcut metninizdeki bilgileri koruyarak, yapıyı biraz daha netleştiren ve proje adımlarını [cite: 3] daha vurgulayan düzenlenmiş `README.md` içeriği bulunmaktadır.
 
------
-
-# Akbank GenAI Bootcamp: ÇSY Terimler Sözlüğü Chatbot'u
+** Akbank GenAI Bootcamp: ÇSY Terimler Sözlüğü Chatbot'u
 
 [cite\_start]Bu proje, Akbank GenAI Bootcamp [cite: 1] [cite\_start]kapsamında geliştirilmiş, RAG (Retrieval-Augmented Generation) [cite: 2] tabanlı bir chatbot uygulamasıdır.
 
