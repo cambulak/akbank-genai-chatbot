@@ -62,6 +62,6 @@ Uygulama başlatıldığında, sizi basit ve kullanıcı dostu bir sohbet arayü
 * **Kullanım:** Alttaki metin giriş kutusuna ÇSY Sözlüğü ile ilgili sorunuzu yazın ve "Enter" tuşuna basın.
 * **Örnek Sorular:** "Yeşil Tahvil nedir?", "Sürdürülebilirlik Raporlaması ne anlama gelir?"
 
-*(Buraya web arayüzünüzün bir ekran görüntüsünü ekleyin)*
+*<img width="1923" height="1093" alt="image" src="https://github.com/user-attachments/assets/425e7009-2672-42f7-ad43-b681dac97466" />*
 
-[cite_start]**Web Linki:** *(Uygulamanızı Streamlit Community Cloud gibi bir platforma deploy ederseniz, buraya canlı linki ekleyin.)* [cite: 1422]
+[cite_start]**Web Linki:** [**(https://cambulak-akbank-genai-chatbot-app-oylacc.streamlit.app/)**] [cite: 1422]
