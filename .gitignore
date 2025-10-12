@@ -1,0 +1,14 @@
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Yerel veritabanı (Büyük ve gereksiz)
+faiss_index_csy_hf/
+faiss_index_csy_hf_new/
+
+# IDE dosyaları
+.idea/
+.vscode/
