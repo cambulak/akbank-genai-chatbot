@@ -1,67 +1,127 @@
-# Akbank GenAI Bootcamp: ÇSY Terimler Sözlüğü Chatbot'u
+🧠 Akbank GenAI Bootcamp: ÇSY Terimler Sözlüğü Chatbot’u
 
-Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiş RAG (Retrieval-Augmented Generation) tabanlı bir chatbot uygulamasıdır.
+Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiş, RAG (Retrieval-Augmented Generation) tabanlı bir chatbot uygulamasıdır.
+Amaç, Erdem & Erdem Hukuk Bürosu tarafından hazırlanan “ÇSY Terimler Sözlüğü” dokümanını bilgi kaynağı olarak kullanarak, kullanıcıların Çevresel, Sosyal ve Yönetişim (ESG/ÇSY) konularındaki sorularına doğal dilde yanıt verebilen bir yapay zekâ asistanı geliştirmektir.
 
-## [cite_start]1. Projenin Amacı [cite: 1418]
+🎯 1. Projenin Amacı
 
-Bu projenin temel amacı, Erdem & Erdem Hukuk Bürosu tarafından hazırlanan "ÇSY Terimler Sözlüğü" PDF dokümanını bir bilgi kaynağı olarak kullanarak, kullanıcıların Çevresel, Sosyal ve Yönetişim (ESG) konularındaki sorularını doğal dilde yanıtlayan bir yapay zeka asistanı oluşturmaktır. Chatbot, sadece kendisine sağlanan dokümandaki bilgilere sadık kalarak güvenilir ve doğru cevaplar üretir.
+Proje, ÇSY alanındaki kavram ve terimleri güvenilir bir kaynaktan açıklayarak, kullanıcıların ESG konusunda farkındalığını artırmayı hedefler.
+Chatbot, yalnızca kendisine sağlanan doküman (ÇSY Terimler Sözlüğü) içeriğini kullanır; harici bilgi kaynaklarından yararlanmaz.
+Böylece yanıtlar doğru, tutarlı ve kaynakla uyumlu şekilde üretilir.
 
-## [cite_start]2. Veri Seti [cite: 1419]
+📘 2. Veri Seti
 
-* **Veri Kaynağı:** `erdem-erdem-csy-terimler-sozlugu.pdf`
-* **İçerik:** Bu doküman, Çevresel, Sosyal ve Yönetişim (ÇSY) alanındaki karmaşık terimleri ve kavramları açıklayan bir sözlüktür.
-* **Hazırlanışı:** Proje kapsamında bu PDF dokümanı, LangChain kütüphanesi kullanılarak metin parçalarına (chunks) ayrılmış ve anlamsal arama yapılabilmesi için vektör temsillerine dönüştürülmüştür.
+Veri Kaynağı: erdem-erdem-csy-terimler-sozlugu.pdf
 
-## [cite_start]3. Kullanılan Yöntemler ve Çözüm Mimarisi [cite: 1420, 1439]
+İçerik: Çevresel, Sosyal ve Yönetişim alanındaki kavram ve tanımların açıklandığı sözlük formatında metin.
 
-Proje, RAG (Retrieval-Augmented Generation) mimarisini temel almaktadır. İzlenen adımlar şunlardır:
+Hazırlık Süreci:
 
-1.  **Veri Yükleme ve Parçalama:** PDF dokümanı `PyPDFLoader` ile yüklendi ve `RecursiveCharacterTextSplitter` ile anlamlı metin parçalarına ayrıldı.
-2.  **Embedding Oluşturma:** Metin parçaları, `HuggingFaceEmbeddings` kullanılarak çok dilli `sentence-transformers/paraphrase-multilingual-mpnet-base-v2` modeli ile vektörlere dönüştürüldü.
-3.  **Vektör Veritabanı:** Elde edilen vektörler, verimli bir anlamsal arama için `FAISS` kütüphanesi kullanılarak yerel bir veritabanında saklandı.
-4.  **Retrieval:** Kullanıcının sorusuna en çok benzeyen metin parçaları, oluşturulan FAISS veritabanından (retriever) çekildi.
-5.  **Generation:** Google'ın `gemini-pro-latest` modeli, hem kullanıcının sorusunu hem de veritabanından çekilen ilgili metin parçalarını (bağlam) alarak, bu bağlama sadık kalacak şekilde bir cevap üretti.
-6.  **Web Arayüzü:** Tüm bu yapı, `Streamlit` kütüphanesi kullanılarak interaktif bir chatbot arayüzü üzerinden kullanıcıya sunuldu.
+PDF dokümanı LangChain aracılığıyla anlamlı metin parçalarına (chunks) ayrılmıştır.
 
-* **Ana Teknolojiler:** Python, LangChain, Google Gemini, FAISS, Hugging Face Transformers, Streamlit.
+Parçalar, Hugging Face üzerindeki çok dilli sentence-transformers/paraphrase-multilingual-mpnet-base-v2 modeliyle vektör temsillerine (embeddings) dönüştürülmüştür.
 
-## [cite_start]4. Çalışma Kılavuzu [cite: 1438]
+Vektörler, FAISS tabanlı bir yerel veritabanında saklanarak anlamsal arama yapılabilir hale getirilmiştir.
 
-Bu projeyi yerel makinenizde çalıştırmak için aşağıdaki adımları izleyin:
+🧩 3. Yöntem ve Mimarisi
 
-1.  **Depoyu Klonlayın:**
-    ```bash
-    git clone [https://github.com/KULLANICI_ADINIZ/DEPO_ADINIZ.git](https://github.com/KULLANICI_ADINIZ/DEPO_ADINIZ.git)
-    cd DEPO_ADINIZ
-    ```
-2.  **Sanal Ortam Oluşturun ve Aktif Edin:**
-    ```bash
-    python -m venv .venv
-    # Windows için
-    .venv\Scripts\activate
-    ```
-3.  **Gerekli Kütüphaneleri Yükleyin:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  **API Anahtarını Ayarlayın:**
-    Bu proje Google Gemini API'sini kullanmaktadır. Bir `GOOGLE_API_KEY` edinmeniz ve bunu sisteminizde bir ortam değişkeni olarak ayarlamanız gerekmektedir.
-5.  **Veritabanını Oluşturun (İlk Kurulum):**
-    ```bash
-    python create_database.py
-    ```
-6.  **Uygulamayı Çalıştırın:**
-    ```bash
-    streamlit run app.py
-    ```
+Proje, RAG (Retrieval-Augmented Generation) mimarisiyle tasarlanmıştır.
+Aşağıda sistemin ana bileşenleri yer almaktadır:
 
-## [cite_start]5. Web Arayüzü & Product Kılavuzu [cite: 1440]
+Veri Yükleme ve Parçalama:
 
-Uygulama başlatıldığında, sizi basit ve kullanıcı dostu bir sohbet arayüzü karşılar.
+PyPDFLoader ile PDF yüklenir.
 
-* **Kullanım:** Alttaki metin giriş kutusuna ÇSY Sözlüğü ile ilgili sorunuzu yazın ve "Enter" tuşuna basın.
-* **Örnek Sorular:** "Yeşil Tahvil nedir?", "Sürdürülebilirlik Raporlaması ne anlama gelir?"
+RecursiveCharacterTextSplitter ile anlamlı metin bloklarına ayrılır.
 
-*(Buraya web arayüzünüzün bir ekran görüntüsünü ekleyin)*
+Embedding Oluşturma:
 
-[cite_start]**Web Linki:** *(Uygulamanızı Streamlit Community Cloud gibi bir platforma deploy ederseniz, buraya canlı linki ekleyin.)* [cite: 1422]
+HuggingFaceEmbeddings kullanılarak metin vektörleri üretilir.
+
+Vektör Veritabanı:
+
+FAISS kütüphanesiyle yerel vektör deposu oluşturulur.
+
+Retrieval:
+
+Kullanıcının sorusuna en yakın metin parçaları FAISS veritabanından getirilir.
+
+Generation:
+
+Google Gemini (gemini-pro-latest) modeli, hem kullanıcı sorusunu hem de ilgili metin parçalarını kullanarak cevap oluşturur.
+
+Web Arayüzü:
+
+Streamlit tabanlı bir sohbet arayüzüyle kullanıcıya sunulur.
+
+Uygulama, Streamlit Community Cloud üzerinde çevrimiçi olarak erişilebilir hale getirilmiştir.
+
+Kullanılan Temel Teknolojiler:
+
+Python • LangChain • Google Gemini • Hugging Face Transformers • FAISS • Streamlit
+
+⚙️ 4. Kurulum ve Çalıştırma
+
+Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları izleyin:
+
+Depoyu Klonlayın
+
+git clone https://github.com/KULLANICI_ADINIZ/DEPO_ADINIZ.git
+cd DEPO_ADINIZ
+
+
+Sanal Ortam Oluşturun ve Aktifleştirin
+
+python -m venv .venv
+# Windows için:
+.venv\Scripts\activate
+
+
+Bağımlılıkları Yükleyin
+
+pip install -r requirements.txt
+
+
+API Anahtarını Tanımlayın
+Proje, Google Gemini API kullanmaktadır.
+Bir GOOGLE_API_KEY oluşturun ve sistem değişkeni olarak ayarlayın:
+
+setx GOOGLE_API_KEY "YOUR_API_KEY_HERE"
+
+
+Uygulamayı Başlatın
+
+streamlit run app.py
+
+
+İlk çalıştırmada PDF’ten vektör veritabanı oluşturulacağı için başlangıç süresi birkaç dakika sürebilir.
+
+💬 5. Kullanım & Arayüz
+
+Uygulama başlatıldığında, sizi sade bir sohbet arayüzü karşılar.
+
+Kullanım:
+Alttaki metin kutusuna ÇSY Sözlüğü ile ilgili sorunuzu yazın ve Enter tuşuna basın.
+
+Örnek Sorular:
+
+“Yeşil Tahvil nedir?”
+
+“Sürdürülebilirlik Raporlaması ne anlama gelir?”
+
+Web Linki (Canlı Uygulama):
+🔗 https://cambulak-akbank-genai-chatbot-app-oylacc.streamlit.app/
+
+<img width="100%" alt="Chatbot Görseli" src="https://github.com/user-attachments/assets/425e7009-2672-42f7-ad43-b681dac97466" />
+🧱 6. Özet
+
+Bu proje, yapay zekâ tabanlı bilgi asistanlarının yerel verilerle eğitilerek nasıl güvenilir bir şekilde çalıştırılabileceğini göstermektedir.
+RAG yaklaşımı sayesinde, model genel bilgiye değil, kendi doküman tabanına dayalı yanıtlar üretir — bu da doğruluk ve güvenilirlik açısından büyük avantaj sağlar.
+
+🏷️ 7. Kaynaklar
+
+Akbank GenAI Bootcamp
+
+Erdem & Erdem Hukuk Bürosu – ÇSY Terimler Sözlüğü
+
+LangChain, Hugging Face, FAISS, Streamlit, Google Gemini
