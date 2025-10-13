@@ -48,8 +48,11 @@ def load_and_build_db():
         print("Veritabanı oluşturuldu ve kaydedildi.")
 
     # --- DEĞİŞİKLİK BURADA ---
-    # Daha fazla bağlam sağlamak için getirilecek parça sayısını artırıyoruz.
-    retriever = db.as_retriever(search_kwargs={'k': 5})
+    # Daha çeşitli ve ilgili sonuçlar getirmek için MMR arama türünü kullanıyoruz.
+    retriever = db.as_retriever(
+        search_type="mmr",
+        search_kwargs={'k': 5, 'fetch_k': 20}
+    )
     # -------------------------
 
     llm = ChatGoogleGenerativeAI(model="gemini-pro-latest", temperature=0.1, convert_system_message_to_human=True)
@@ -75,7 +78,7 @@ def create_rag_chain(retriever, llm):
     return {"context": retriever, "question": RunnablePassthrough()} | prompt | llm | StrOutputParser()
 
 
-# --- Ana Streamlit Uygulaması ---
+# --- Ana Streamlit Uygulaması (değişiklik yok) ---
 st.set_page_config(page_title="Kurumsal Sürdürülebilirlik Asistanı", layout="wide")
 st.title("🌱 Kurumsal Sürdürülebilirlik Asistanı")
 st.write(
