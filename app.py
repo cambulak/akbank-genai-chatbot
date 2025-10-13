@@ -2,6 +2,8 @@
 
 import os
 import streamlit as st
+import glob
+
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -9,52 +11,43 @@ from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
 
-# Veri işleme için ek kütüphaneler
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-# Veritabanının kaydedileceği yol
 FAISS_INDEX_PATH = "faiss_index"
 
 
 @st.cache_resource
 def load_and_build_db():
-    """
-    Uygulama başladığında veritabanını yükler veya yoksa oluşturur.
-    Bu fonksiyonun sonucu cache'lenir, böylece sadece bir kere çalışır.
-    """
     print("Veritabanı kontrol ediliyor ve yükleniyor...")
 
-    # Embedding modelini yükle
     model_name = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
     embeddings = HuggingFaceEmbeddings(model_name=model_name)
 
-    # Eğer veritabanı zaten oluşturulmuşsa, doğrudan yükle
     if os.path.exists(FAISS_INDEX_PATH):
         print("Mevcut veritabanı bulundu, yükleniyor.")
         db = FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
     else:
-        # Eğer veritabanı yoksa, PDF'ten oluştur
-        print("Veritabanı bulunamadı, PDF'ten oluşturuluyor. Bu işlem biraz zaman alabilir...")
+        print("Veritabanı bulunamadı, PDF'lerden oluşturuluyor...")
+        pdf_files = glob.glob("data/*.pdf")
+        if not pdf_files:
+            st.error("HATA: 'data' klasöründe okunacak PDF dosyası bulunamadı.")
+            st.stop()
 
-        # --- DEĞİŞİKLİK BURADA ---
-        pdf_path = "data/esg_dic.pdf"
-        # -------------------------
-
-        loader = PyPDFLoader(pdf_path)
-        documents = loader.load()
+        all_documents = []
+        for pdf_path in pdf_files:
+            loader = PyPDFLoader(pdf_path)
+            documents = loader.load()
+            all_documents.extend(documents)
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-        docs = text_splitter.split_documents(documents)
+        docs = text_splitter.split_documents(all_documents)
 
         db = FAISS.from_documents(docs, embeddings)
         db.save_local(FAISS_INDEX_PATH)
         print("Veritabanı oluşturuldu ve kaydedildi.")
 
-    # Retriever'ı oluştur
     retriever = db.as_retriever(search_kwargs={'k': 3})
-
-    # Google Dil Modelini (LLM) Tanımla
     llm = ChatGoogleGenerativeAI(model="gemini-pro-latest", temperature=0.1, convert_system_message_to_human=True)
 
     print("Modeller ve veritabanı başarıyla hazırlandı.")
@@ -62,7 +55,6 @@ def load_and_build_db():
 
 
 def create_rag_chain(retriever, llm):
-    """Verilen retriever ve llm ile RAG zincirini oluşturur."""
     template = """
     ### TALİMAT:
     Sadece sana verilen `BAĞLAM` bölümündeki bilgileri kullanarak `SORU` bölümündeki soruyu yanıtla. Cevabın dışarıdan bilgi içermemelidir. Eğer bağlamda sorunun cevabı yoksa, 'Bu konuda sağlanan dokümanda bir bilgi bulamadım.' de. Cevaplarını Türkçe ve anlaşılır bir dille yaz.
@@ -81,9 +73,21 @@ def create_rag_chain(retriever, llm):
 
 # --- Ana Streamlit Uygulaması ---
 
-st.title("📖 ÇSY Terimler Sözlüğü Chatbot'u")
+# <-- DEĞİŞİKLİK 1: Başlık ve Açıklama ---
+st.set_page_config(page_title="Kurumsal Sürdürülebilirlik Asistanı", layout="wide")
+st.title("🌱 Kurumsal Sürdürülebilirlik Asistanı")
 st.write(
-    "Bu chatbot, Erdem & Erdem tarafından hazırlanan ÇSY Terimler Sözlüğü'ndeki bilgileri kullanarak sorularınızı yanıtlar.")
+    "Bu asistan, Borsa İstanbul Sürdürülebilirlik Rehberi ve Erdem & Erdem ÇSY Sözlüğü'ndeki bilgileri kullanarak sorularınızı yanıtlar.")
+
+# <-- DEĞİŞİKLİK 2: Örnek Sorular ---
+st.markdown("""
+**Örnek Sorular:**
+- Yeşil aklama (greenwashing) nedir?
+- Bir sürdürülebilirlik stratejisi nasıl hazırlanır?
+- TSRS nedir?
+- İklimle ilgili fiziksel riskler nelerdir?
+""")
+st.markdown("---")
 
 # API anahtarını Streamlit Secrets'tan kontrol et
 if 'GOOGLE_API_KEY' not in st.secrets:
@@ -106,8 +110,8 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Kullanıcıdan girdi al ve sohbeti yürüt
-if prompt := st.chat_input("ÇSY ile ilgili bir terim sorun..."):
+# <-- DEĞİŞİKLİK 3: Sohbet Girişi Metni (Placeholder) ---
+if prompt := st.chat_input("Sürdürülebilirlik stratejisi, raporlama veya bir terim hakkında soru sorun..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -118,3 +122,8 @@ if prompt := st.chat_input("ÇSY ile ilgili bir terim sorun..."):
             st.markdown(response)
 
     st.session_state.messages.append({"role": "assistant", "content": response})
+
+# <-- DEĞİŞİKLİK 4: Kaynak Bilgisi Ekleyin ---
+st.markdown("---")
+st.caption(
+    "Bu asistanın bilgi tabanı, Borsa İstanbul Sürdürülebilirlik Rehberi ve Erdem & Erdem ÇSY Terimler Sözlüğü dokümanlarından oluşturulmuştur.")
