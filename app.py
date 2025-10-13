@@ -47,7 +47,11 @@ def load_and_build_db():
         db.save_local(FAISS_INDEX_PATH)
         print("Veritabanı oluşturuldu ve kaydedildi.")
 
-    retriever = db.as_retriever(search_kwargs={'k': 3})
+    # --- DEĞİŞİKLİK BURADA ---
+    # Daha fazla bağlam sağlamak için getirilecek parça sayısını artırıyoruz.
+    retriever = db.as_retriever(search_kwargs={'k': 5})
+    # -------------------------
+
     llm = ChatGoogleGenerativeAI(model="gemini-pro-latest", temperature=0.1, convert_system_message_to_human=True)
 
     print("Modeller ve veritabanı başarıyla hazırlandı.")
@@ -57,7 +61,7 @@ def load_and_build_db():
 def create_rag_chain(retriever, llm):
     template = """
     ### TALİMAT:
-    Sadece sana verilen `BAĞLAM` bölümündeki bilgileri kullanarak `SORU` bölümündeki soruyu yanıtla. Cevabın dışarıdan bilgi içermemelidir. Eğer bağlamda sorunun cevabı yoksa, 'Bu konuda sağlanan dokümanda bir bilgi bulamadım.' de. Cevaplarını Türkçe ve anlaşılır bir dille yaz.
+    Sana verilen `BAĞLAM` bölümündeki bilgileri kullanarak `SORU` bölümündeki soruyu yanıtla. Cevabın dışarıdan bilgi içermemelidir. Eğer bağlamda sorunun cevabı yoksa, 'Bu konuda sağlanan dokümanda bir bilgi bulamadım.' de. Cevaplarını Türkçe ve anlaşılır bir dille yaz.
 
     ### BAĞLAM:
     {context}
@@ -72,14 +76,11 @@ def create_rag_chain(retriever, llm):
 
 
 # --- Ana Streamlit Uygulaması ---
-
-# <-- DEĞİŞİKLİK 1: Başlık ve Açıklama ---
 st.set_page_config(page_title="Kurumsal Sürdürülebilirlik Asistanı", layout="wide")
 st.title("🌱 Kurumsal Sürdürülebilirlik Asistanı")
 st.write(
     "Bu asistan, Borsa İstanbul Sürdürülebilirlik Rehberi ve Erdem & Erdem ÇSY Sözlüğü'ndeki bilgileri kullanarak sorularınızı yanıtlar.")
 
-# <-- DEĞİŞİKLİK 2: Örnek Sorular ---
 st.markdown("""
 **Örnek Sorular:**
 - Yeşil aklama (greenwashing) nedir?
@@ -89,12 +90,10 @@ st.markdown("""
 """)
 st.markdown("---")
 
-# API anahtarını Streamlit Secrets'tan kontrol et
 if 'GOOGLE_API_KEY' not in st.secrets:
     st.error("HATA: GOOGLE_API_KEY bulunamadı. Lütfen Streamlit Cloud ayarlarından 'Secrets' bölümüne ekleyin.")
     st.stop()
 
-# Modelleri ve veritabanını yükle
 try:
     retriever, llm = load_and_build_db()
     rag_chain = create_rag_chain(retriever, llm)
@@ -102,7 +101,6 @@ except Exception as e:
     st.error(f"Başlangıç sırasında bir hata oluştu: {e}")
     st.stop()
 
-# Sohbet geçmişini yönet
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -110,7 +108,6 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# <-- DEĞİŞİKLİK 3: Sohbet Girişi Metni (Placeholder) ---
 if prompt := st.chat_input("Sürdürülebilirlik stratejisi, raporlama veya bir terim hakkında soru sorun..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -123,7 +120,6 @@ if prompt := st.chat_input("Sürdürülebilirlik stratejisi, raporlama veya bir 
 
     st.session_state.messages.append({"role": "assistant", "content": response})
 
-# <-- DEĞİŞİKLİK 4: Kaynak Bilgisi Ekleyin ---
 st.markdown("---")
 st.caption(
     "Bu asistanın bilgi tabanı, Borsa İstanbul Sürdürülebilirlik Rehberi ve Erdem & Erdem ÇSY Terimler Sözlüğü dokümanlarından oluşturulmuştur.")
