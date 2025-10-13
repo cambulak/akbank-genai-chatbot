@@ -11,6 +11,9 @@ from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
 
+# --- DEĞİŞİKLİK 1: MultiQueryRetriever'ı import et ---
+from langchain.retrievers.multi_query import MultiQueryRetriever
+
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -25,7 +28,6 @@ def load_and_build_db():
     embeddings = HuggingFaceEmbeddings(model_name=model_name)
 
     if os.path.exists(FAISS_INDEX_PATH):
-        print("Mevcut veritabanı bulundu, yükleniyor.")
         db = FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
     else:
         print("Veritabanı bulunamadı, PDF'lerden oluşturuluyor...")
@@ -47,17 +49,20 @@ def load_and_build_db():
         db.save_local(FAISS_INDEX_PATH)
         print("Veritabanı oluşturuldu ve kaydedildi.")
 
-    # --- DEĞİŞİKLİK BURADA ---
-    # Daha çeşitli ve ilgili sonuçlar getirmek için MMR arama türünü kullanıyoruz.
-    retriever = db.as_retriever(
-        search_type="mmr",
-        search_kwargs={'k': 5, 'fetch_k': 20}
-    )
-    # -------------------------
-
     llm = ChatGoogleGenerativeAI(model="gemini-pro-latest", temperature=0.1, convert_system_message_to_human=True)
 
-    print("Modeller ve veritabanı başarıyla hazırlandı.")
+    # --- DEĞİŞİKLİK 2: MultiQueryRetriever'ı oluştur ---
+    # Temel retriever'ı oluştur
+    base_retriever = db.as_retriever(
+        search_kwargs={'k': 7})  # Arama başına getirilecek belge sayısını biraz artırabiliriz
+
+    # LLM kullanarak çoklu sorgular üretecek retriever'ı oluştur
+    retriever = MultiQueryRetriever.from_llm(
+        retriever=base_retriever, llm=llm
+    )
+    # --------------------------------------------------
+
+    print("Modeller ve Multi-Query Retriever başarıyla hazırlandı.")
     return retriever, llm
 
 
