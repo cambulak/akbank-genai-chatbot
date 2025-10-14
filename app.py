@@ -10,8 +10,6 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
-
-# --- DEĞİŞİKLİK 1: MultiQueryRetriever'ı import et ---
 from langchain.retrievers.multi_query import MultiQueryRetriever
 
 from langchain_community.document_loaders import PyPDFLoader
@@ -40,9 +38,11 @@ def load_and_build_db():
         for pdf_path in pdf_files:
             loader = PyPDFLoader(pdf_path)
             documents = loader.load()
+            for doc in documents:
+                doc.metadata["source"] = os.path.basename(pdf_path)
             all_documents.extend(documents)
 
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
         docs = text_splitter.split_documents(all_documents)
 
         db = FAISS.from_documents(docs, embeddings)
@@ -51,16 +51,8 @@ def load_and_build_db():
 
     llm = ChatGoogleGenerativeAI(model="gemini-pro-latest", temperature=0.1, convert_system_message_to_human=True)
 
-    # --- DEĞİŞİKLİK 2: MultiQueryRetriever'ı oluştur ---
-    # Temel retriever'ı oluştur
-    base_retriever = db.as_retriever(
-        search_kwargs={'k': 11})  # Arama başına getirilecek belge sayısını biraz artırabiliriz
-
-    # LLM kullanarak çoklu sorgular üretecek retriever'ı oluştur
-    retriever = MultiQueryRetriever.from_llm(
-        retriever=base_retriever, llm=llm
-    )
-    # --------------------------------------------------
+    base_retriever = db.as_retriever(search_kwargs={'k': 7})
+    retriever = MultiQueryRetriever.from_llm(retriever=base_retriever, llm=llm)
 
     print("Modeller ve Multi-Query Retriever başarıyla hazırlandı.")
     return retriever, llm
@@ -69,7 +61,7 @@ def load_and_build_db():
 def create_rag_chain(retriever, llm):
     template = """
     ### TALİMAT:
-    Sana verilen `BAĞLAM` bölümündeki bilgileri kullanarak `SORU` bölümündeki soruyu yanıtla. Cevabın dışarıdan bilgi içermemelidir. Eğer bağlamda sorunun cevabı yoksa, 'Bu konuda sağlanan dokümanda bir bilgi bulamadım.' de. Cevaplarını Türkçe ve anlaşılır bir dille yaz.
+    Sana verilen `BAĞLAM` bölümündeki bilgileri kullanarak `SORU` bölümündeki soruyu yanıtla. Cevabın dışarıdan bilgi içermemelidir. Cevabın net, anlaşılır ve sohbet formatında olsun. Eğer bağlamda sorunun cevabı yoksa, 'Bu konuda sağlanan dokümanlarda bir bilgi bulamadım.' de. Cevaplarını Türkçe ver.
 
     ### BAĞLAM:
     {context}
@@ -83,19 +75,34 @@ def create_rag_chain(retriever, llm):
     return {"context": retriever, "question": RunnablePassthrough()} | prompt | llm | StrOutputParser()
 
 
-# --- Ana Streamlit Uygulaması (değişiklik yok) ---
-st.set_page_config(page_title="Kurumsal Sürdürülebilirlik Asistanı", layout="wide")
-st.title("🌱 Kurumsal Sürdürülebilirlik Asistanı")
-st.write(
-    "Bu asistan, Borsa İstanbul Sürdürülebilirlik Rehberi ve Erdem & Erdem ÇSY Sözlüğü'ndeki bilgileri kullanarak sorularınızı yanıtlar.")
+# --- Ana Streamlit Uygulaması ---
+st.set_page_config(page_title="Kurumsal Sürdürülebilirlik Asistanı", layout="wide", initial_sidebar_state="expanded")
 
+with st.sidebar:
+    st.title("🌱 Kurumsal Sürdürülebilirlik Asistanı")
+    st.markdown("""
+    Bu asistan, RAG mimarisi kullanarak aşağıdaki belgelerdeki bilgilere göre sorularınızı yanıtlar:
+    - **Erdem & Erdem - ÇSY Terimler Sözlüğü**
+    - **Borsa İstanbul - Sürdürülebilirlik Rehberi**
+    """)
+    st.markdown("---")
+
+    if st.button("Sohbeti Temizle", use_container_width=True):
+        st.session_state.messages = []
+        st.rerun()
+
+    st.caption("Akbank GenAI Bootcamp Projesi")
+
+# --- DEĞİŞİKLİK BURADA ---
 st.markdown("""
 **Örnek Sorular:**
-- Yeşil aklama (greenwashing) nedir?
-- Bir sürdürülebilirlik stratejisi nasıl hazırlanır?
-- TSRS nedir?
-- İklimle ilgili fiziksel riskler nelerdir?
+- Sınırda karbon düzenlemesi nedir?
+- Paris Anlaşması nedir?
+- Kurumsal Yönetim nedir?
+- Karbon tutma nedir?
 """)
+# -------------------------
+
 st.markdown("---")
 
 if 'GOOGLE_API_KEY' not in st.secrets:
@@ -110,7 +117,10 @@ except Exception as e:
     st.stop()
 
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = [
+        {"role": "assistant",
+         "content": "Merhaba! Sürdürülebilirlik veya ÇSY konularında size nasıl yardımcı olabilirim?"}
+    ]
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -122,11 +132,19 @@ if prompt := st.chat_input("Sürdürülebilirlik stratejisi, raporlama veya bir 
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Düşünüyorum..."):
-            response = rag_chain.invoke(prompt)
-            st.markdown(response)
+        with st.spinner("İlgili belgeleri arıyorum..."):
+            retrieved_docs = retriever.get_relevant_documents(prompt)
 
-    st.session_state.messages.append({"role": "assistant", "content": response})
+        response_stream = rag_chain.stream(prompt)
+        full_response = st.write_stream(response_stream)
+
+        with st.expander("Yanıtın Kaynaklarını Gör"):
+            for doc in retrieved_docs:
+                st.info(
+                    f"**Kaynak:** {doc.metadata.get('source', 'Bilinmiyor')} - **Sayfa:** {doc.metadata.get('page', 'Bilinmiyor') + 1}")
+                st.caption(doc.page_content)
+
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 st.markdown("---")
 st.caption(
