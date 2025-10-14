@@ -96,6 +96,7 @@ with st.sidebar:
 # --- DEĞİŞİKLİK BURADA ---
 st.markdown("""
 **Örnek Sorular:**
+- Sürdürülebilir uygulamaların artırılması şirkete hangi katkıları sağlar?
 - Sınırda karbon düzenlemesi nedir?
 - Paris Anlaşması nedir?
 - Kurumsal Yönetim nedir?
@@ -140,8 +141,11 @@ if prompt := st.chat_input("Sürdürülebilirlik stratejisi, raporlama veya bir 
 
         with st.expander("Yanıtın Kaynaklarını Gör"):
             for doc in retrieved_docs:
-                st.info(
-                    f"**Kaynak:** {doc.metadata.get('source', 'Bilinmiyor')} - **Sayfa:** {doc.metadata.get('page', 'Bilinmiyor') + 1}")
+                source_name = doc.metadata.get('source', 'Bilinmiyor')
+                page_number = doc.metadata.get('page', 'Bilinmiyor')
+                if page_number != 'Bilinmiyor':
+                    page_number += 1
+                st.info(f"**Kaynak:** {source_name} - **Sayfa:** {page_number}")
                 st.caption(doc.page_content)
 
     st.session_state.messages.append({"role": "assistant", "content": full_response})
