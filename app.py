@@ -1,80 +1,133 @@
-# pages/2_📊_ÇSY_Risk_Görselleştirmesi.py
+# app.py
 
+import os
 import streamlit as st
-import pandas as pd
-import plotly.graph_objects as go
+import glob
 
-st.set_page_config(page_title="ÇSY Risk Görselleştirmesi", layout="wide")
+from langchain_community.vectorstores import FAISS
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.prompts import PromptTemplate
+from langchain.schema.runnable import RunnablePassthrough
+from langchain.schema.output_parser import StrOutputParser
 
-st.title("Kurumsal Sürdürülebilirlik (ÇSY) Risk Kategorileri")
-st.write("Bu interaktif görselleştirme, Borsa İstanbul Sürdürülebilirlik Rehberi'nde belirtilen ÇSY risklerini hiyerarşik olarak göstermektedir. Kutucukların üzerine gelerek detayları görebilirsiniz.")
+# --- DEĞİŞİKLİK 1: MultiQueryRetriever'ı import et ---
+from langchain.retrievers.multi_query import MultiQueryRetriever
 
-# "Sürdürülebilirlik Rehberi_2020.pdf" Sayfa 24'teki risk sınıflandırmasına dayalı veri
-data = {
-    'ids': [
-        'ÇSY Riskleri',
-        'Çevresel Riskler', 'Sosyal Riskler', 'Yönetişim Riskleri',
-        'İklim Değişikliği', 'Doğal Kaynak Kullanımı',
-        'İnsan Kaynakları Yönetimi', 'Ürün Sorumluluğu', 'Toplumsal Etkiler',
-        'İş Etiği ve Kurumsal Davranış',
-        'Politika ve Düzenleyici Değişiklikler', 'İnovasyon Geliştirme', 'Karbon Ayak İzi Azaltma', 'Fiziksel Riskler',
-        'Döngüsel Ekonomi', 'Biyoçeşitlilik', 'Su Yönetimi',
-        'İş Sağlığı ve Güvenliği', 'Yetenek Yönetimi', 'Çeşitlilik ve Eşitlik',
-        'Ürün Güvenilirliği',
-        'Yerel Güven Kaybı', 'Katma Değer Dağıtımı',
-        'Hukuka Aykırı Davranışların Önlenmesi', 'Sorumlu Tedarik Zinciri'
-    ],
-    'parents': [
-        '',
-        'ÇSY Riskleri', 'ÇSY Riskleri', 'ÇSY Riskleri',
-        'Çevresel Riskler', 'Çevresel Riskler',
-        'Sosyal Riskler', 'Sosyal Riskler', 'Sosyal Riskler',
-        'Yönetişim Riskleri',
-        'İklim Değişikliği', 'İklim Değişikliği', 'İklim Değişikliği', 'İklim Değişikliği',
-        'Doğal Kaynak Kullanımı', 'Doğal Kaynak Kullanımı', 'Doğal Kaynak Kullanımı',
-        'İnsan Kaynakları Yönetimi', 'İnsan Kaynakları Yönetimi', 'İnsan Kaynakları Yönetimi',
-        'Ürün Sorumluluğu',
-        'Toplumsal Etkiler', 'Toplumsal Etkiler',
-        'İş Etiği ve Kurumsal Davranış', 'İş Etiği ve Kurumsal Davranış'
-    ],
-    'labels': [
-        'ÇSY Riskleri',
-        'Çevresel Riskler', 'Sosyal Riskler', 'Yönetişim Riskleri',
-        'İklim Değişikliği', 'Doğal Kaynakların Kullanımı',
-        'İnsan Kaynakları Yönetimi', 'Ürün Sorumluluğu', 'Toplum Üzerindeki Etkiler',
-        'İş Etiği ve Kurumsal Davranış',
-        'Politika Değişiklikleri', 'Yenilik Geliştirme', 'Karbon Ayak İzini Azaltma', 'Fiziksel Riskler',
-        'Döngüsel Ekonomi', 'Biyoçeşitlilik Korunması', 'Sürdürülebilir Su Yönetimi',
-        'İş Sağlığı ve Güvenliği', 'Yetenekleri Çekme ve Elde Tutma', 'Çeşitlilik, Eşit Fırsatlar ve Refah',
-        'Ürün Güvenilirliği ve Kalitesi',
-        'Yerel Alanlarda Güven Kaybı', 'Katma Değerin Dengeli Dağıtımı',
-        'Yolsuzluk ve Rüşvetin Önlenmesi', 'Sorumlu Tedarik Zinciri Uygulamaları'
-    ],
-    'values': [
-        0, 14, 10, 4, 4, 3, 3, 1, 2, 2,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-    ]
-}
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-df = pd.DataFrame(data)
+FAISS_INDEX_PATH = "faiss_index"
 
-fig = go.Figure(go.Treemap(
-    ids=df['ids'],
-    labels=df['labels'],
-    parents=df['parents'],
-    values=df['values'], # Values'ı ekleyerek kutu boyutlarını belirginleştiriyoruz
-    root_color="lightgrey",
-    textinfo="label",
-    hoverinfo="label+parent", # Üzerine gelince etiketi ve ait olduğu kategoriyi göster
-    hovertemplate='<b>%{label}</b><br>Ana Kategori: %{parent}<extra></extra>'
-))
 
-fig.update_layout(
-    treemapcolorway=["#1f77b4", "#ff7f0e", "#2ca02c"], # Çevresel, Sosyal, Yönetişim için renkler
-    margin = dict(t=25, l=25, r=25, b=25)
-)
+@st.cache_resource
+def load_and_build_db():
+    print("Veritabanı kontrol ediliyor ve yükleniyor...")
 
-# Grafiği Streamlit arayüzünde göster
-st.plotly_chart(fig, use_container_width=True)
+    model_name = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+    embeddings = HuggingFaceEmbeddings(model_name=model_name)
 
-st.caption("Kaynak: Borsa İstanbul - Sürdürülebilirlik Rehberi (Sayfa 24)")
+    if os.path.exists(FAISS_INDEX_PATH):
+        db = FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
+    else:
+        print("Veritabanı bulunamadı, PDF'lerden oluşturuluyor...")
+        pdf_files = glob.glob("data/*.pdf")
+        if not pdf_files:
+            st.error("HATA: 'data' klasöründe okunacak PDF dosyası bulunamadı.")
+            st.stop()
+
+        all_documents = []
+        for pdf_path in pdf_files:
+            loader = PyPDFLoader(pdf_path)
+            documents = loader.load()
+            all_documents.extend(documents)
+
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        docs = text_splitter.split_documents(all_documents)
+
+        db = FAISS.from_documents(docs, embeddings)
+        db.save_local(FAISS_INDEX_PATH)
+        print("Veritabanı oluşturuldu ve kaydedildi.")
+
+    llm = ChatGoogleGenerativeAI(model="gemini-pro-latest", temperature=0.1, convert_system_message_to_human=True)
+
+    # --- DEĞİŞİKLİK 2: MultiQueryRetriever'ı oluştur ---
+    # Temel retriever'ı oluştur
+    base_retriever = db.as_retriever(
+        search_kwargs={'k': 11})  # Arama başına getirilecek belge sayısını biraz artırabiliriz
+
+    # LLM kullanarak çoklu sorgular üretecek retriever'ı oluştur
+    retriever = MultiQueryRetriever.from_llm(
+        retriever=base_retriever, llm=llm
+    )
+    # --------------------------------------------------
+
+    print("Modeller ve Multi-Query Retriever başarıyla hazırlandı.")
+    return retriever, llm
+
+
+def create_rag_chain(retriever, llm):
+    template = """
+    ### TALİMAT:
+    Sana verilen `BAĞLAM` bölümündeki bilgileri kullanarak `SORU` bölümündeki soruyu yanıtla. Cevabın dışarıdan bilgi içermemelidir. Eğer bağlamda sorunun cevabı yoksa, 'Bu konuda sağlanan dokümanda bir bilgi bulamadım.' de. Cevaplarını Türkçe ve anlaşılır bir dille yaz.
+
+    ### BAĞLAM:
+    {context}
+
+    ### SORU:
+    {question}
+
+    ### CEVAP:
+    """
+    prompt = PromptTemplate(template=template, input_variables=["context", "question"])
+    return {"context": retriever, "question": RunnablePassthrough()} | prompt | llm | StrOutputParser()
+
+
+# --- Ana Streamlit Uygulaması (değişiklik yok) ---
+st.set_page_config(page_title="Kurumsal Sürdürülebilirlik Asistanı", layout="wide")
+st.title("🌱 Kurumsal Sürdürülebilirlik Asistanı")
+st.write(
+    "Bu asistan, Borsa İstanbul Sürdürülebilirlik Rehberi ve Erdem & Erdem ÇSY Sözlüğü'ndeki bilgileri kullanarak sorularınızı yanıtlar.")
+
+st.markdown("""
+**Örnek Sorular:**
+- Yeşil aklama (greenwashing) nedir?
+- Bir sürdürülebilirlik stratejisi nasıl hazırlanır?
+- TSRS nedir?
+- İklimle ilgili fiziksel riskler nelerdir?
+""")
+st.markdown("---")
+
+if 'GOOGLE_API_KEY' not in st.secrets:
+    st.error("HATA: GOOGLE_API_KEY bulunamadı. Lütfen Streamlit Cloud ayarlarından 'Secrets' bölümüne ekleyin.")
+    st.stop()
+
+try:
+    retriever, llm = load_and_build_db()
+    rag_chain = create_rag_chain(retriever, llm)
+except Exception as e:
+    st.error(f"Başlangıç sırasında bir hata oluştu: {e}")
+    st.stop()
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+if prompt := st.chat_input("Sürdürülebilirlik stratejisi, raporlama veya bir terim hakkında soru sorun..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        with st.spinner("Düşünüyorum..."):
+            response = rag_chain.invoke(prompt)
+            st.markdown(response)
+
+    st.session_state.messages.append({"role": "assistant", "content": response})
+
+st.markdown("---")
+st.caption(
+    "Bu asistanın bilgi tabanı, Borsa İstanbul Sürdürülebilirlik Rehberi ve Erdem & Erdem ÇSY Terimler Sözlüğü dokümanlarından oluşturulmuştur.")
