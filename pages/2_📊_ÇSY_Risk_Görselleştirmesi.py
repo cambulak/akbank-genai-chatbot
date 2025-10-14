@@ -51,17 +51,8 @@ data = {
         'Yolsuzluk ve Rüşvetin Önlenmesi', 'Sorumlu Tedarik Zinciri Uygulamaları'
     ],
     'values': [
-        0,
-        14, 10, 4, # Ana kategorilerin boyutu (alt öğelerin sayısı)
-        4, 3,
-        3, 1, 2,
-        2,
-        1, 1, 1, 1, # En alt dallar (her biri 1 birim)
-        1, 1, 1,
-        1, 1, 1,
-        1,
-        1, 1,
-        1, 1
+        0, 14, 10, 4, 4, 3, 3, 1, 2, 2,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     ]
 }
 
@@ -71,9 +62,11 @@ fig = go.Figure(go.Treemap(
     ids=df['ids'],
     labels=df['labels'],
     parents=df['parents'],
+    values=df['values'], # Values'ı ekleyerek kutu boyutlarını belirginleştiriyoruz
     root_color="lightgrey",
-    textinfo="label+value",
-    hoverinfo="label+value"
+    textinfo="label",
+    hoverinfo="label+parent", # Üzerine gelince etiketi ve ait olduğu kategoriyi göster
+    hovertemplate='<b>%{label}</b><br>Ana Kategori: %{parent}<extra></extra>'
 ))
 
 fig.update_layout(
