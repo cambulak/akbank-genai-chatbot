@@ -54,7 +54,7 @@ def load_and_build_db():
     # --- DEĞİŞİKLİK 2: MultiQueryRetriever'ı oluştur ---
     # Temel retriever'ı oluştur
     base_retriever = db.as_retriever(
-        search_kwargs={'k': 7})  # Arama başına getirilecek belge sayısını biraz artırabiliriz
+        search_kwargs={'k': 11})  # Arama başına getirilecek belge sayısını biraz artırabiliriz
 
     # LLM kullanarak çoklu sorgular üretecek retriever'ı oluştur
     retriever = MultiQueryRetriever.from_llm(
