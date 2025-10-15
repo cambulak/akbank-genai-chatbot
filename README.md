@@ -28,7 +28,7 @@ Proje, gelişmiş bir RAG (Retrieval-Augmented Generation) mimarisiyle tasarlanm
   * **Retrieval (Bilgi Çekme):**
       * Kullanıcının sorduğu tek bir soruyu, arka planda LLM kullanarak birden çok alt sorguya dönüştüren **`MultiQueryRetriever`** tekniği kullanılmıştır.
       * Bu yöntem, cevabı dokümanların farklı yerlerine yayılmış karmaşık sorular için bile ilgili tüm bilgi parçalarını toplama başarısını artırır.
-  * [cite\_start]**Generation (Cevap Üretme):** Google'ın `gemini-pro-latest` modeli, hem kullanıcı sorusunu hem de ilgili metin parçalarını (bağlam) alarak cevabı oluşturur[cite: 42].
+  * **Generation (Cevap Üretme):** Google'ın `gemini-pro-latest` modeli, hem kullanıcı sorusunu hem de ilgili metin parçalarını (bağlam) alarak cevabı oluşturur.
   * **Web Arayüzü:** `Streamlit` ile geliştirilen çok sayfalı uygulama, bir sohbet arayüzü ve interaktif bir `Plotly` veri görselleştirmesi sunar.
 
 **Kullanılan Temel Teknolojiler:**
