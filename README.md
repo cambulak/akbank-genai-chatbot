@@ -1,62 +1,115 @@
-# 💼 Akbank GenAI Bootcamp: Kurumsal Sürdürülebilirlik Asistanı
+# Akbank GenAI Bootcamp: Kurumsal Sürdürülebilirlik Asistanı
 
-Bu proje, **Akbank GenAI Bootcamp** kapsamında geliştirilmiş **RAG (Retrieval-Augmented Generation)** tabanlı çok sayfalı bir web uygulamasıdır.  
-Uygulama; bir **Sohbet Asistanı** ve bir **Veri Görselleştirme Paneli** olmak üzere iki ana bileşenden oluşmaktadır.
+Bu proje, **Akbank GenAI Bootcamp** kapsamında geliştirilmiş, **RAG (Retrieval-Augmented Generation)** tabanlı çok sayfalı bir web uygulamasıdır.  
+Uygulama, bir **Sohbet Asistanı** ve bir **Veri Görselleştirme** panelinden oluşmaktadır.
 
 ---
 
 ## 🎯 1. Projenin Amacı
 
-Projenin temel amacı, **sürdürülebilirlik alanındaki karmaşık kavramları** güvenilir kaynaklara dayalı olarak açıklayabilen, etkileşimli bir **yapay zeka destekli asistan** geliştirmektir.  
-Sistem yalnızca kendisine yüklenen dokümanlardan yararlanır; harici bilgi kaynaklarına başvurmaz. Böylece yanıtların **doğruluğu, tutarlılığı ve kaynak izlenebilirliği** sağlanır.
+Projenin temel amacı, sürdürülebilirlik alanındaki karmaşık konuları güvenilir kaynaklardan yola çıkarak hem interaktif bir sohbet arayüzüyle açıklamak hem de veri görselleştirmesiyle sunmaktır.  
+Chatbot, yalnızca kendisine sağlanan dokümanların içeriğini kullanarak, harici bilgi kaynaklarına başvurmadan, doğru ve tutarlı yanıtlar üretir.
 
 ---
 
 ## 📘 2. Veri Seti
 
-### Veri Kaynakları
-1. *Erdem & Erdem – ÇSY Terimler Sözlüğü.pdf*  
-2. *Borsa İstanbul – Sürdürülebilirlik Rehberi.pdf*
+**Veri Kaynakları:**
+1. *Erdem & Erdem - ÇSY Terimler Sözlüğü.pdf*
+2. *Borsa İstanbul - Sürdürülebilirlik Rehberi.pdf*
 
-### İçerik  
-Veri seti, Çevresel, Sosyal ve Yönetişim (ÇSY) kavramlarını açıklayan bir terimler sözlüğü ile kurumsal sürdürülebilirlik stratejilerini, raporlama standartlarını ve uygulama yöntemlerini anlatan kapsamlı bir rehberden oluşmaktadır.
+**İçerik:** Veri seti, ÇSY alanındaki temel terimleri açıklayan bir sözlük ile kurumsal sürdürülebilirlik stratejileri, raporlama standartları ve uygulama yöntemlerini detaylandıran kapsamlı bir rehberden oluşmaktadır.
 
-### Hazırlık Süreci
-- `data/` klasörüne eklenen tüm PDF’ler uygulamanın ilk çalıştırılmasında otomatik olarak işlenir.  
-- Metinler, **`sentence-transformers/paraphrase-multilingual-mpnet-base-v2`** modeliyle vektör temsillerine dönüştürülür.  
-- Vektörler, **FAISS** tabanlı bir yerel veritabanında saklanır ve anlamsal arama için kullanılır.  
+**Hazırlık Süreci:**
+- `data/` klasörüne eklenen PDF’ler otomatik olarak işlenir.
+- Metinler, `sentence-transformers/paraphrase-multilingual-mpnet-base-v2` modeliyle embedding’e dönüştürülür.
+- Embedding’ler, `FAISS` tabanlı yerel bir vektör veritabanında saklanır.
 
 ---
 
-## 🧩 3. Yöntem ve Mimari
+## 🧩 3. Yöntem ve Mimarisi
 
-Proje, gelişmiş bir **RAG (Retrieval-Augmented Generation)** mimarisiyle tasarlanmıştır.  
-Sistem, kullanıcı sorularını dokümanlardan çekilen en alakalı bilgiyle ilişkilendirir ve modelin bağlama dayalı yanıt üretmesini sağlar.
+Proje, gelişmiş bir **RAG (Retrieval-Augmented Generation)** mimarisiyle tasarlanmıştır.
 
-### Süreç Adımları
-- **Veri Yükleme ve Parçalama:**  
-  `PyPDFLoader` dokümanları yükler, `RecursiveCharacterTextSplitter` metinleri anlamlı bloklara ayırır.  
-- **Embedding Oluşturma:**  
-  `HuggingFaceEmbeddings` ile her metin parçası vektörel olarak temsil edilir.  
-- **Vektör Veritabanı:**  
-  `FAISS` ile yerel bir veri deposu oluşturulur.  
-- **Bilgi Çekme (Retrieval):**  
-  `MultiQueryRetriever`, tek bir soruyu çok sayıda alt sorguya dönüştürerek farklı bölümlerdeki ilgili bilgileri bir araya getirir.  
-- **Cevap Üretme (Generation):**  
-  `Google Gemini-Pro` modeli, kullanıcı sorusunu ve ilgili bağlamı birlikte işleyerek cevabı üretir.  
-- **Web Arayüzü:**  
-  `Streamlit` ile oluşturulan çok sayfalı arayüz, **Sohbet Asistanı** ve **Veri Görselleştirme Paneli** bölümlerinden oluşur.
+### Sistem Akışı
+1. **Veri Yükleme:** `PyPDFLoader` PDF’leri yükler.  
+2. **Parçalama:** `RecursiveCharacterTextSplitter` ile metinler anlamlı bloklara ayrılır.  
+3. **Embedding:** `HuggingFaceEmbeddings` modeliyle metin vektörleri oluşturulur.  
+4. **Depolama:** `FAISS` kullanılarak vektör tabanı oluşturulur.  
+5. **Retrieval:** `MultiQueryRetriever` bir soruyu çoklu alt sorgulara dönüştürür.  
+6. **Cevap Üretimi:** `Google Gemini Pro` modeli yanıt üretir.
 
-### Kullanılan Teknolojiler
-> Python • LangChain • Google Gemini • Hugging Face Transformers • FAISS • Streamlit • Plotly
+**Kullanılan Teknolojiler:**  
+Python • LangChain • Google Gemini • Hugging Face • FAISS • Streamlit • Plotly
 
 ---
 
 ## ⚙️ 4. Kurulum ve Çalıştırma
 
-Yerel ortamda uygulamayı çalıştırmak için şu adımları izleyin:
-
-### 1. Depoyu Klonlayın
+### 1️⃣ Depoyu Klonlayın
 ```bash
 git clone https://github.com/KULLANICI_ADINIZ/DEPO_ADINIZ.git
 cd DEPO_ADINIZ
+```
+
+### 2️⃣ Sanal Ortam Oluşturun
+```bash
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+```
+
+### 3️⃣ Bağımlılıkları Yükleyin
+```bash
+pip install -r requirements.txt
+```
+
+### 4️⃣ API Anahtarını Tanımlayın
+```bash
+set GOOGLE_API_KEY=YOUR_API_KEY
+```
+
+### 5️⃣ Uygulamayı Başlatın
+```bash
+streamlit run app.py
+```
+
+> *Not:* İlk çalıştırmada `data` klasöründeki PDF’lerden vektör veritabanı oluşturulacağı için birkaç dakika sürebilir.
+
+---
+
+## 💬 5. Web Arayüzü & Product Kılavuzu
+
+### 🧠 Sohbet Asistanı
+- **Kullanım:** Sorunuzu yazın, Enter’a basın.
+- **Kaynak Gösterimi:** Yanıtın dayandığı doküman ve sayfa bilgisi görünür.
+- **Örnek Sorular:**
+  - Sürdürülebilir uygulamaların artırılması şirkete hangi katkıları sağlar?
+  - Sınırda karbon düzenlemesi nedir?
+  - Paris Anlaşması nedir?
+  - Kurumsal Yönetim nedir?
+  - Karbon tutma nedir?
+
+### 📊 ÇSY Risk Görselleştirmesi
+- **İçerik:** Borsa İstanbul Sürdürülebilirlik Rehberi’nden alınan risk sınıflandırması.
+- **Özellik:** Treemap grafiği ile etkileşimli risk keşfi.
+- **Kullanım:** Fareyle kategori üzerine gelin, tanım ve üst kategori bilgisi görünür.
+
+**Canlı Uygulama:**  
+🔗 [https://cambulak-akbank-genai-chatbot-app-oylacc.streamlit.app/](https://cambulak-akbank-genai-chatbot-app-oylacc.streamlit.app/)
+
+---
+
+## 🧱 6. Özet
+
+Bu proje, RAG mimarisinin belirli bir bilgi alanında uzmanlaşmış yapay zekâ asistanları geliştirmede ne kadar güçlü olduğunu göstermektedir.  
+`MultiQueryRetriever` ve Streamlit tabanlı çok sayfalı yapı sayesinde hem teknik derinlik hem kullanıcı dostu deneyim sağlanmıştır.
+
+---
+
+## 🏷️ 7. Kaynaklar
+
+- Akbank GenAI Bootcamp  
+- Erdem & Erdem Hukuk Bürosu – ÇSY Terimler Sözlüğü  
+- Borsa İstanbul – Sürdürülebilirlik Rehberi  
+- LangChain, Hugging Face, FAISS, Streamlit, Google Gemini belgeleri
