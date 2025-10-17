@@ -78,10 +78,10 @@ def create_rag_chain(retriever, llm):
 # --- Ana Streamlit Uygulaması ---
 st.set_page_config(page_title="Kurumsal Sürdürülebilirlik Asistanı", layout="wide", initial_sidebar_state="expanded")
 
-# --- DEĞİŞİKLİK BURADA: Sidebar'a fotoğrafı ekliyoruz ---
 with st.sidebar:
-    # Fotoğrafı ekle
-    st.image("assets/surdurulebilirlik_venn.png", use_column_width=True)
+    # --- DEĞİŞİKLİK BURADA: use_column_width -> use_container_width ---
+    st.image("assets/surdurulebilirlik_venn.png", use_container_width=True)
+    # -----------------------------------------------------------------
 
     st.title("🌱 Kurumsal Sürdürülebilirlik Asistanı")
     st.markdown("""
@@ -96,7 +96,6 @@ with st.sidebar:
         st.rerun()
 
     st.caption("Akbank GenAI Bootcamp Projesi")
-# ----------------------------------------------------
 
 st.markdown("""
 **Örnek Sorular:**
@@ -155,3 +154,4 @@ if prompt := st.chat_input("Sürdürülebilirlik stratejisi, raporlama veya bir 
 st.markdown("---")
 st.caption(
     "Bu asistanın bilgi tabanı, Borsa İstanbul Sürdürülebilirlik Rehberi ve Erdem & Erdem ÇSY Terimler Sözlüğü dokümanlarından oluşturulmuştur.")
+
