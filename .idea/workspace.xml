@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d5dfa676-e2f8-460c-8ad5-9f009a0a8dfe" name="Changes" comment="örnek sorular güncellendi">
+    <list default="true" id="d5dfa676-e2f8-460c-8ad5-9f009a0a8dfe" name="Changes" comment="teknik anlatımlar güncellendi">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -52,6 +52,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -169,6 +170,8 @@
       <workItem from="1760289432603" duration="5194000" />
       <workItem from="1760377107940" duration="3174000" />
       <workItem from="1760428649071" duration="3968000" />
+      <workItem from="1760524049235" duration="1162000" />
+      <workItem from="1760605470455" duration="211000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -298,7 +301,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760432028848</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="teknik anlatımlar güncellendi">
+      <option name="closed" value="true" />
+      <created>1760524335085</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1760524335085</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -312,7 +323,8 @@
     <MESSAGE value="görselleştirme denemeleri" />
     <MESSAGE value="k=11" />
     <MESSAGE value="görselleştirme updated" />
-    <option name="LAST_COMMIT_MESSAGE" value="görselleştirme updated" />
+    <MESSAGE value="teknik anlatımlar güncellendi" />
+    <option name="LAST_COMMIT_MESSAGE" value="teknik anlatımlar güncellendi" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Dictionary_ESG$create_database.coverage" NAME="create_database Coverage Results" MODIFIED="1760207835457" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
