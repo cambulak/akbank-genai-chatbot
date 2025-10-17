@@ -95,6 +95,9 @@ streamlit run app.py
 - **Özellik:** Treemap grafiği ile etkileşimli risk keşfi.
 - **Kullanım:** Fareyle kategori üzerine gelin, tanım ve üst kategori bilgisi görünür.
 
+<img width="1882" height="804" alt="image" src="https://github.com/user-attachments/assets/3a7bf4a1-da92-4179-864e-5f3bf9130496" />
+
+
 **Canlı Uygulama:**  
 🔗 [https://cambulak-akbank-genai-chatbot-app-oylacc.streamlit.app/](https://cambulak-akbank-genai-chatbot-app-oylacc.streamlit.app/)
 
