@@ -8,3 +8,6 @@ sentence-transformers
 python-dotenv
 pandas
 plotly
+langchain
+langchain-core
+langchain-text-splitters
