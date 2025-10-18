@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d5dfa676-e2f8-460c-8ad5-9f009a0a8dfe" name="Changes" comment="eski version">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/create_database.py" beforeDir="false" />
-    </list>
+    <list default="true" id="d5dfa676-e2f8-460c-8ad5-9f009a0a8dfe" name="Changes" comment="revision" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -197,7 +193,7 @@
       <workItem from="1760289432603" duration="5194000" />
       <workItem from="1760377107940" duration="3174000" />
       <workItem from="1760428649071" duration="3968000" />
-      <workItem from="1760784374266" duration="707000" />
+      <workItem from="1760784374266" duration="1362000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -327,7 +323,23 @@
       <option name="project" value="LOCAL" />
       <updated>1760432028848</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="revision">
+      <option name="closed" value="true" />
+      <created>1760785245538</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1760785245538</updated>
+    </task>
+    <task id="LOCAL-00018" summary="revision">
+      <option name="closed" value="true" />
+      <created>1760785745966</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1760785745966</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -341,7 +353,8 @@
     <MESSAGE value="görselleştirme denemeleri" />
     <MESSAGE value="k=11" />
     <MESSAGE value="görselleştirme updated" />
-    <option name="LAST_COMMIT_MESSAGE" value="görselleştirme updated" />
+    <MESSAGE value="revision" />
+    <option name="LAST_COMMIT_MESSAGE" value="revision" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Dictionary_ESG$create_database.coverage" NAME="create_database Coverage Results" MODIFIED="1760207835457" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
