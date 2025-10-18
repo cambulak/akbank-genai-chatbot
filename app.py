@@ -70,7 +70,7 @@ def load_and_build_db():
     # --- 3. DİL MODELİ (LLM) ---
     # ChatGoogleGenerativeAI, load_dotenv() sayesinde API anahtarını
     # otomatik olarak ortam değişkenlerinden (os.environ) bulacaktır.
-    llm = ChatGoogleGenerativeAI(model="gemini-pro-latest", temperature=0.1, convert_system_message_to_human=True)
+    llm = ChatGoogleGenerativeAI(model="models/gemini-2.5-pro", temperature=0.1, convert_system_message_to_human=True)
     # Not: Model adını "gemini-pro-latest" yerine "gemini-pro" olarak değiştirdim,
     # "latest" bazen sorun çıkarabiliyor. İsterseniz geri değiştirebilirsiniz.
 
