@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="d5dfa676-e2f8-460c-8ad5-9f009a0a8dfe" name="Changes" comment="revision">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -196,7 +195,7 @@
       <workItem from="1760289432603" duration="5194000" />
       <workItem from="1760377107940" duration="3174000" />
       <workItem from="1760428649071" duration="3968000" />
-      <workItem from="1760784374266" duration="2665000" />
+      <workItem from="1760784374266" duration="3942000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -350,7 +349,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760786144486</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="revision">
+      <option name="closed" value="true" />
+      <created>1760787221758</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1760787221758</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
