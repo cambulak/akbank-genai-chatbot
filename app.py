@@ -19,7 +19,11 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain.retrievers.multi_query import MultiQueryRetriever
+
+# ⚠️ Düzeltme: MultiQueryRetriever artık "langchain_community.retrievers" altına taşındı.
+# Önceki sürümlerde "langchain.retrievers" yolundaydı.
+from langchain_community.retrievers import MultiQueryRetriever
+
 # PDF yükleme ve metin bölme
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
