@@ -6,7 +6,10 @@ import streamlit as st
 
 # .env dosyasından ortam değişkenlerini yüklemek için
 from dotenv import load_dotenv
-
+try:
+    from langchain.retrievers.multi_query import MultiQueryRetriever
+except ImportError:
+    from langchain.retrievers import MultiQueryRetriever
 # LangChain'in RAG mimarisi için temel bileşenleri
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
