@@ -9,9 +9,9 @@ import glob
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
+from langchain.prompts import PromptTemplate
+from langchain.schema.runnable import RunnablePassthrough
+from langchain.schema.output_parser import StrOutputParser
 from langchain.retrievers.multi_query import MultiQueryRetriever
 
 # PDF okuma ve metin bölme işlemleri için kütüphaneler
@@ -267,15 +267,15 @@ def load_and_build_db():
     """
     print("Veritabanı kontrol ediliyor ve yükleniyor...")
 
-    # --- 1. EMBEDDING MODELİ ---
+    # 1. EMBEDDING MODELİ
     # Metinleri anlamsal vektörlere dönüştürmek için kullanılacak model.
     # 'paraphrase-multilingual-mpnet-base-v2' modeli, Türkçe dahil birçok dili
     # yüksek performansla anlama yeteneği sayesinde seçilmiştir. Bu, RAG sisteminin
-    # "Retrieval" (Bilgi Getirme) adımının kalitesini doğrudan belirleyen en kritik seçimdir.
+    # "Retrieval" (Bilgi Getirme) adımının kalitesini doğrudan belirler.
     model_name = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
     embeddings = HuggingFaceEmbeddings(model_name=model_name)
 
-    # --- 2. VEKTÖR VERİTABANI ---
+    # 2. VEKTÖR VERİTABANI
     # Eğer daha önce oluşturulmuş bir veritabanı diskte varsa, onu yükle.
     # Bu, uygulamanın yeniden başlatıldığında PDF'leri tekrar işlemesini engeller.
     if os.path.exists(FAISS_INDEX_PATH):
@@ -314,16 +314,15 @@ def load_and_build_db():
         db.save_local(FAISS_INDEX_PATH)
         print("Veritabanı oluşturuldu ve kaydedildi.")
 
-    # --- 3. DİL MODELİ (LLM) ---
-    # Cevapları üretecek olan ana model. Google'ın Gemini Pro modelinin en son versiyonunu kullanıyoruz.
-    # "temperature=0.1" parametresi, modelin daha az yaratıcı ve daha çok bilgiye dayalı, tutarlı cevaplar vermesini sağlar.
+    # 3. DİL MODELİ (LLM)
+    # Cevapları üretecek olan ana model. Google'ın Gemini Pro modelini kullanıyoruz.
     llm = ChatGoogleGenerativeAI(model="gemini-pro-latest", temperature=0.1, convert_system_message_to_human=True)
 
-    # --- 4. RETRIEVER (BİLGİ GETİRİCİ) ---
+    # 4. RETRIEVER (BİLGİ GETİRİCİ)
     # Bu, RAG sisteminin en önemli optimizasyonlarından biridir.
     # Kullanıcının tek bir sorusunu alıp, LLM'i kullanarak o soruyu farklı açılardan
-    # yeniden ifade eden birden çok alt sorgu üretir (Örn: "strateji nasıl hazırlanır?" -> "sürdürülebilirlik planlama adımları nelerdir?").
-    # Bu, cevabı dokümanların farklı yerlerine yayılmış karmaşık sorular için bile ilgili tüm bilgi parçalarını toplama
+    # yeniden ifade eden birden çok alt sorgu üretir. Bu, cevabı dokümanların farklı
+    # yerlerine yayılmış karmaşık sorular için bile ilgili tüm bilgi parçalarını toplama
     # başarısını büyük ölçüde artırır.
     base_retriever = db.as_retriever(search_kwargs={'k': 7})
     retriever = MultiQueryRetriever.from_llm(retriever=base_retriever, llm=llm)
@@ -337,12 +336,12 @@ def create_rag_chain(retriever, llm):
     Verilen retriever ve llm ile RAG (Retrieval-Augmented Generation) zincirini oluşturur.
     Bu zincir, kullanıcı sorusundan nihai cevaba giden tüm adımları düzenler.
     """
-    # --- 5. PROMPT ŞABLONU ---
+    # 5. PROMPT ŞABLONU
     # LLM'e ne yapması gerektiğini söyleyen talimatlar bütünüdür.
     # {context} -> Retriever'dan gelen bilgi parçaları
     # {question} -> Kullanıcının orijinal sorusu
     # Bu şablon, modelin sadece kendisine verilen bağlama sadık kalmasını sağlayarak
-    # "halüsinasyon" görmesini (bilgi uydurmasını) engeller. Bu, RAG'ın temel amacıdır.
+    # "halüsinasyon" görmesini (bilgi uydurmasını) engeller.
     template = """
     ### TALİMAT:
     Sana verilen `BAĞLAM` bölümündeki bilgileri kullanarak `SORU` bölümündeki soruyu yanıtla. Cevabın dışarıdan bilgi içermemelidir. Cevabın net, anlaşılır ve sohbet formatında olsun. Eğer bağlamda sorunun cevabı yoksa, 'Bu konuda sağlanan dokümanlarda bir bilgi bulamadım.' de. Cevaplarını Türkçe ver.
@@ -357,24 +356,23 @@ def create_rag_chain(retriever, llm):
     """
     prompt = PromptTemplate(template=template, input_variables=["context", "question"])
 
-    # --- 6. LANGCHAIN EXPRESSION LANGUAGE (LCEL) ZİNCİRİ ---
-    # Boru (pipe |) operatörü ile adımları birbirine bağlarız. Bu, RAG akışını tanımlar:
-    # 1. `retriever` ve kullanıcının sorusu (`question`) paralel olarak çalışır ve bir sözlük oluşturur.
-    # 2. Bu sözlüğün çıktıları `prompt` şablonuna beslenir.
-    # 3. Doldurulan prompt `llm`'e (Gemini) gönderilir.
+    # 6. LANGCHAIN EXPRESSION LANGUAGE (LCEL) ZİNCİRİ
+    # Boru (pipe |) operatörü ile adımları birbirine bağlarız:
+    # 1. `retriever` ve `question` paralel olarak çalışır.
+    # 2. Çıktıları `prompt` şablonuna beslenir.
+    # 3. Doldurulan prompt `llm`'e gönderilir.
     # 4. LLM'in cevabı `StrOutputParser` ile temiz bir metne dönüştürülür.
     return {"context": retriever, "question": RunnablePassthrough()} | prompt | llm | StrOutputParser()
 
 
 # --- STREAMLIT ARAYÜZÜ ---
 
-# Sayfa konfigürasyonu (tarayıcı sekmesindeki başlık, sayfa düzeni vb.)
+# Sayfa konfigürasyonu (başlık, layout vb.)
 st.set_page_config(page_title="Kurumsal Sürdürülebilirlik Asistanı", layout="wide", initial_sidebar_state="expanded")
 
 # Kenar Çubuğu (Sidebar)
-# Arayüzü temiz tutmak için bilgilendirici metinleri, görselleri ve butonları buraya koyuyoruz.
+# Arayüzü temiz tutmak için bilgilendirici metinleri ve butonları buraya koyuyoruz.
 with st.sidebar:
-    st.image("assets/surdurulebilirlik_venn.png", use_container_width=True)
     st.title("🌱 Kurumsal Sürdürülebilirlik Asistanı")
     st.markdown("""
     Bu asistan, RAG mimarisi kullanarak aşağıdaki belgelerdeki bilgilere göre sorularınızı yanıtlar:
@@ -386,11 +384,11 @@ with st.sidebar:
     # Sohbet geçmişini temizlemek için bir buton
     if st.button("Sohbeti Temizle", use_container_width=True):
         st.session_state.messages = []
-        st.rerun()  # Sayfayı yeniden çalıştırarak arayüzü temizle
+        st.rerun()
 
     st.caption("Akbank GenAI Bootcamp Projesi")
 
-# Örnek Sorular Bölümü (Kullanıcıya chatbot'un yeteneklerini göstermek için)
+# Örnek Sorular Bölümü
 st.markdown("""
 **Örnek Sorular:**
 - Sürdürülebilir uygulamaların artırılması şirkete hangi katkıları sağlar?
@@ -416,7 +414,6 @@ except Exception as e:
 
 # Sohbet Geçmişi Yönetimi
 # st.session_state, Streamlit'in sayfayı her yenilediğinde değişkenleri hatırlamasını sağlar.
-# Bu sayede sohbet geçmişi kaybolmaz.
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {"role": "assistant",
@@ -443,12 +440,12 @@ if prompt := st.chat_input("Sürdürülebilirlik stratejisi, raporlama veya bir 
             retrieved_docs = retriever.get_relevant_documents(prompt)
 
             # Cevabı kelime kelime, akış halinde (streaming) yazdır.
-            # Bu, kullanıcının daha hızlı geri bildirim almasını sağlar ve daha iyi bir deneyim sunar.
+            # Bu, kullanıcının daha hızlı geri bildirim almasını sağlar.
             response_stream = rag_chain.stream(prompt)
             full_response = st.write_stream(response_stream)
 
             # Cevap yazdırıldıktan sonra, cevabın hangi kaynaklara dayandığını gösteren
-            # genişletilebilir bir bölüm ekle. Bu, chatbot'un şeffaflığını ve güvenilirliğini artırır.
+            # genişletilebilir bir bölüm ekle. Bu, chatbot'un güvenilirliğini artırır.
             with st.expander("Yanıtın Kaynaklarını Gör"):
                 for doc in retrieved_docs:
                     source_name = doc.metadata.get('source', 'Bilinmiyor')
@@ -464,4 +461,3 @@ if prompt := st.chat_input("Sürdürülebilirlik stratejisi, raporlama veya bir 
 st.markdown("---")
 st.caption(
     "Bu asistanın bilgi tabanı, Borsa İstanbul Sürdürülebilirlik Rehberi ve Erdem & Erdem ÇSY Terimler Sözlüğü dokümanlarından oluşturulmuştur.")
-
