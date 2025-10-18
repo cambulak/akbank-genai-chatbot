@@ -1,15 +1,26 @@
 # app.py
 
+# app.py
+
 import os
 import glob
 import streamlit as st
 
 # .env dosyasından ortam değişkenlerini yüklemek için
 from dotenv import load_dotenv
+
+# LangChain import'larını düzeltin
 try:
-    from langchain.retrievers.multi_query import MultiQueryRetriever
+    # Önce yeni yolu dene
+    from langchain_community.retrievers import MultiQueryRetriever
 except ImportError:
-    from langchain.retrievers import MultiQueryRetriever
+    try:
+        # Eski yolu dene
+        from langchain.retrievers import MultiQueryRetriever
+    except ImportError:
+        # Alternatif çözüm
+        from langchain.retrievers.multi_query import MultiQueryRetriever
+
 # LangChain'in RAG mimarisi için temel bileşenleri
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -17,7 +28,6 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain.retrievers.multi_query import MultiQueryRetriever
 
 # PDF okuma ve metin bölme işlemleri için kütüphaneler
 from langchain_community.document_loaders import PyPDFLoader
