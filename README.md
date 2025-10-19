@@ -96,7 +96,7 @@ streamlit run app.py
 - **Kullanım:** Fareyle kategori üzerine gelin, tanım ve üst kategori bilgisi görünür.
 
 **Canlı Uygulama:**  
-🔗 [https://cambulak-akbank-genai-chatbot-app-oylacc.streamlit.app/](https://cambulak-akbank-genai-chatbot-app-oylacc.streamlit.app/)
+🔗 [https://akbank-genai-chatbot-h8apfoq5vnx3xrc9yavmnk.streamlit.app//](https://cambulak-akbank-genai-chatbot-app-oylacc.streamlit.app/)
 
 ---
 
