@@ -14,4 +14,4 @@ faiss_index_csy_hf_new/
 .vscode/
 
 # Streamlit secrets dosyasını asla GitHub'a gönderme
-.streamlit/secrets.toml
+.streamlit/
