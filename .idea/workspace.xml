@@ -5,6 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d5dfa676-e2f8-460c-8ad5-9f009a0a8dfe" name="Changes" comment="revision">
+      <change beforePath="$PROJECT_DIR$/.idea/Dictionary_ESG.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Dictionary_ESG.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.streamlit/secrets.toml" beforeDir="false" afterPath="$PROJECT_DIR$/.streamlit/secrets.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Surdurulebilirlik_Rehberi_2020.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/data/Surdurulebilirlik_Rehberi_2020.pdf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -28,12 +32,12 @@
     &quot;assignee&quot;: &quot;cambulak&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/cambulak/akbank-genai-chatbot&quot;,
-    &quot;accountId&quot;: &quot;6c60dbdb-bfa4-486a-8c4d-52c8b215bf70&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/cambulak/akbank-genai-chatbot.git",
+    "accountId": "6c60dbdb-bfa4-486a-8c4d-52c8b215bf70"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
 }</component>
@@ -199,6 +203,7 @@
       <workItem from="1760795276145" duration="8463000" />
       <workItem from="1760858745090" duration="381000" />
       <workItem from="1760859695589" duration="461000" />
+      <workItem from="1760866914538" duration="3646000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
