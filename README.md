@@ -123,6 +123,9 @@ Uygulamanın Streamlit Cloud üzerinde yayınlanmış versiyonuna aşağıdaki l
 
 [https://akbank-genai-chatbot-h8apfoq5vnx3xrc9yavmnk.streamlit.app/](https://akbank-genai-chatbot-h8apfoq5vnx3xrc9yavmnk.streamlit.app/)
 
+<img width="1899" height="747" alt="image" src="https://github.com/user-attachments/assets/101f791b-3b6c-48a7-96c8-fbb96935dbfe" />
+
+
 ## 🧱 Özet
 
 Bu proje, RAG mimarisinin belirli bir bilgi alanında (kurumsal sürdürülebilirlik) uzmanlaşmış, güvenilir ve kaynak gösterebilen yapay zekâ asistanları geliştirmede etkinliğini göstermektedir. `MultiQueryRetriever` kullanımı sorgu çeşitliliğini artırarak daha kapsamlı sonuçlar bulunmasına yardımcı olurken, Streamlit tabanlı çok sayfalı yapı hem sohbet arayüzünü hem de veri görselleştirmesini kullanıcı dostu bir şekilde sunmaktadır.
